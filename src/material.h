@@ -21,7 +21,14 @@ public:
      glm::color& attenuation, ray& scattered) const override 
   {
      // todo
-      attenuation = albedo;
+
+      using namespace glm;
+
+      vec3 unitn = normalize(rec.normal);
+      vec3 lightDir = normalize(vec3(5, 5, 0) - rec.p);
+      color diffuse = max(vec3(0), dot(unitn, lightDir)) * albedo;
+
+      attenuation = diffuse;
       return false;
   }
 
