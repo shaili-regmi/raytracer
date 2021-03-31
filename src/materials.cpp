@@ -82,7 +82,6 @@ void ray_trace(ppm_image& image)
    world.add(make_shared<sphere>(point3(0.75, 0, -1), 0.5f, matteGreen));
    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100, gray));
 
-
    // Ray trace
    for (int j = 0; j < height; j++)
    {

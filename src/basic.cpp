@@ -24,13 +24,20 @@ color ray_color(const ray& r, const hittable_list& world, int depth)
    if (world.hit(r, 0.001f, infinity, rec))
    {
       ray scattered;
-      color attenuation;
+      //color attenuation;
+      /* //lambertian version 1
       if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
       {
          color recurseColor = ray_color(scattered, world, depth - 1);
          return attenuation * recurseColor;
-      }
-      return attenuation;
+      }*/
+      // lambertian version 2
+      vec3 scatter_direction = rec.p + rec.normal + random_unit_vector();
+      if (near_zero(scatter_direction)) scatter_direction = rec.normal;
+      scattered = ray(rec.p, scatter_direction - rec.p);
+      color recurseColor = ray_color(scattered, world, depth - 1);
+      return 0.5f * recurseColor;
+      //return attenuation;
    }
    vec3 unit_direction = normalize(r.direction());
    auto t = 0.5f * (unit_direction.y + 1.0f);

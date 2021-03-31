@@ -20,6 +20,8 @@ public:
 };
 
 bool sphere::hit(const ray& r, hit_record& rec) const {
+
+   /* // analytical method:
    glm::vec3 oc = r.origin() - center;
    float a = glm::dot(r.direction(), r.direction());
    float half_b = glm::dot(oc, r.direction());
@@ -32,10 +34,26 @@ bool sphere::hit(const ray& r, hit_record& rec) const {
    float t = (-half_b - sqrtd) / a;
    if (t < 0) t = (-half_b + sqrtd) / a;
    if (t < 0) return false;
+   */
+
+   // geometric method:
+    glm::vec3 el = center - r.origin();
+    float s = dot(el, normalize(r.direction()));
+    float el_sqr = dot(el, el);
+    float r_sqr = radius * radius;
+    if (s < 0 && el_sqr > r_sqr) return false;
+
+    float m_sqr = el_sqr - (s * s);
+    if (m_sqr > r_sqr) return false;
+
+    float q = pow((r_sqr - m_sqr), 0.5);
+    float t;
+    if (el_sqr > r_sqr) t = s - q;
+    else t = s + q;
 
    // save relevant data in hit record
-   rec.t = t; // save the time when we hit the object
-   rec.p = r.at(t); // ray.origin + t * ray.direction
+   rec.t = (t / length(r.direction())); // save the time when we hit the object
+   rec.p = r.at(t / length(r.direction())); // ray.origin + t * ray.direction
    rec.mat_ptr = mat_ptr; 
 
    // save normal

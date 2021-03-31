@@ -12,8 +12,18 @@ public:
 
    virtual bool hit(const ray& r, hit_record& rec) const override
    {
-      // todo
-      return false;
+       float numerator = dot((a - r.origin()), n);
+       float denominator = dot(normalize(r.direction()), n);
+       if (denominator == 0) return false;
+       float t = numerator / denominator;
+       if (t < 0) return false;
+
+       // save relevant data in hit record
+       rec.t = (t / length(r.direction())); // save the time when we hit the object
+       rec.p = r.at(t / length(r.direction())); // ray.origin + t * ray.direction
+       rec.mat_ptr = mat_ptr;
+
+       return true;
    }
 
 public:

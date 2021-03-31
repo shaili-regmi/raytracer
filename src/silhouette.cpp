@@ -1,6 +1,6 @@
+#include "ray.h"
 #include "ppm_image.h"
 #include "AGLM.h"
-#include "ray.h"
 
 using namespace glm;
 using namespace agl;
@@ -30,7 +30,7 @@ color ray_color(const ray& ray)
 	float t2 = 0.5f * (unit_direction.y + 1.0f);
 	color c1(0.5f, 0.7f, 1.0f);
 	color c2(1.0);
-	color c = c1 * (1 - t2) + c2 * t2;
+	color c = c2 * (1 - t2) + c1 * t2;
 	return c;
 }
 void ray_trace(ppm_image& image)

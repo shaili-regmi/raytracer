@@ -81,4 +81,43 @@ int main(int argc, char** argv)
                hit_record{vec3(0,0.3432f, 1.9703f), vec3(0,0.1716f, 0.9851f), 0.3432f, true, empty}); 
 
    // TODO: Your tests here
+
+   // Test plane:
+   plane p(vec3(1, 1, 0), vec3(0, 0, 1), empty); // XY plane
+   hit_record rec = hit_record{ point3(0), point3(0), -1.0f, false, empty };
+
+   ray r = ray(point3(0, 0, 5), vec3(0, 0, -1)); // Ray outside primitive which hits the plane
+   bool hit = p.hit(r, rec);
+   cout << "Ray outside primitive which hits the plane? " << hit << endl;
+
+   r = ray(point3(5, 9, 0), vec3(1, 0, -1)); // Ray inside primitive which hits the plane
+   hit = p.hit(r, rec);
+   cout << "Ray inside primitive which hits the plane? " << hit << endl;
+
+   r = ray(point3(0, 0, 5), vec3(1, 1, 0)); // A ray parallel to XY plane
+   hit = p.hit(r, rec);
+   cout << "Ray parallel to XY plane does not hit? " << hit << endl;
+
+   r = ray(point3(0, 0, 5), vec3(0, 0, 6)); // A ray outside, pointing away from the primitive (misses)
+   hit = p.hit(r, rec);
+   cout << "A ray outside, pointing away from the primitive (misses)? " << hit << endl;
+
+   plane p1(vec3(5, 4, -3), cross(vec3(5, 4, -3), vec3(3, 6, -5)), empty); // Random plane
+
+   r = ray(point3(0, 0, 5), vec3(1, 1, -1)); // Ray outside primitive which hits the plane
+   hit = p1.hit(r, rec);
+   cout << "Ray outside primitive which hits the plane? " << hit << endl;
+
+   r = ray(point3(4, 5, -4), vec3(1, 1, 0)); // Ray inside primitive which hits the plane
+   hit = p1.hit(r, rec);
+   cout << "Ray inside primitive which hits the plane? " << hit << endl;
+
+   r = ray(point3(0, 0, 5), vec3(1, 1, 10)); // A ray outside, pointing towards the primitive that misses
+   hit = p1.hit(r, rec);
+   cout << "A ray outside, pointing towards the primitive that misses? " << hit << endl;
+
+   r = ray(point3(0, 0, 5), vec3(-1, -1, 1)); // A ray outside, pointing away from the primitive (misses)
+   hit = p1.hit(r, rec);
+   cout << "A ray outside, pointing away from the primitive (misses)? " << hit << endl;
+
 }

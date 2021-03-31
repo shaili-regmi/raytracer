@@ -1,7 +1,7 @@
+#include "ray.h"
 #include <iostream>
 #include "ppm_image.h"
 #include "AGLM.h"
-#include "ray.h"
 
 using namespace glm;
 using namespace agl;
