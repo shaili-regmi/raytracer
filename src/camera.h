@@ -30,6 +30,21 @@ public:
           float aspect_ratio) 
    {
       // todo
+       using namespace glm;
+
+       float theta = vfov * 3.14159265359f / 180.0f;
+       float h = tan(theta / 2);
+       float viewport_height = 2.0 * h;
+       float viewport_width = aspect_ratio * viewport_height;
+
+       point3 w = normalize(lookfrom - lookat);
+       vec3 u = normalize(cross(vup, w));
+       vec3 v = cross(w, u);
+
+       origin = lookfrom;
+       horizontal = viewport_width * u;
+       vertical = viewport_height * v;
+       lower_left_corner = origin - (horizontal / 2.0f) - (vertical / 2.0f) - w;
    }
 
    virtual ray get_ray(float u, float v) const 

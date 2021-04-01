@@ -66,6 +66,7 @@ void ray_trace(ppm_image& image)
    vec3 camera_pos(0, 0, 6);
    float viewport_height = 2.0f;
    float focal_length = 4.0; 
+   //camera cam(point3(-2, 2, 1), point3(0, 0, -1), vec3(0, 1, 0), 20, aspect); // Changing the camera position using look at and up vectors
    camera cam(camera_pos, viewport_height, aspect, focal_length);
 
    // World
@@ -74,14 +75,14 @@ void ray_trace(ppm_image& image)
    shared_ptr<material> metalRed = make_shared<metal>(color(1, 0, 0), 0.3f);
    shared_ptr<material> glass = make_shared<dielectric>(1.5f);
    shared_ptr<material> phongDefault = make_shared<phong>(camera_pos);
-
+   
    hittable_list world;
    world.add(make_shared<sphere>(point3(-2.25, 0, -1), 0.5f, phongDefault));
    world.add(make_shared<sphere>(point3(-0.75, 0, -1), 0.5f, glass));
    world.add(make_shared<sphere>(point3(2.25, 0, -1), 0.5f, metalRed));
    world.add(make_shared<sphere>(point3(0.75, 0, -1), 0.5f, matteGreen));
    world.add(make_shared<sphere>(point3(0, -100.5, -1), 100, gray));
-
+   
    // Ray trace
    for (int j = 0; j < height; j++)
    {
