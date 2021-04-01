@@ -23,13 +23,22 @@ public:
      // todo
 
       using namespace glm;
+      
+      // lambertian version 2
+      vec3 scatter_direction = rec.p + rec.normal + random_unit_vector();
+      if (near_zero(scatter_direction)) scatter_direction = rec.normal;
+      scattered = ray(rec.p, scatter_direction - rec.p);
+      attenuation = albedo;
+      return true; // bounce
 
+      /* // lambertian version 1
       vec3 unitn = normalize(rec.normal);
       vec3 lightDir = normalize(vec3(5, 5, 0) - rec.p);
       color diffuse = max(vec3(0), dot(unitn, lightDir)) * albedo;
-
+      
       attenuation = diffuse;
       return false;
+      */
   }
 
 public:
@@ -44,7 +53,7 @@ public:
      ambientColor(.01f, .01f, .01f),
      lightPos(5,5,0),
      viewPos(view), 
-     kd(0.45), ks(0.45), ka(0.1), shininess(10.0) 
+     kd(0.45), ks(0.45), ka(0.1), shininess(10.0)
   {}
 
   phong(const glm::color& idiffuseColor, 
@@ -52,20 +61,30 @@ public:
         const glm::color& iambientColor,
         const glm::point3& ilightPos, 
         const glm::point3& iviewPos, 
-        float ikd, float iks, float ika, float ishininess) : 
+        float ikd, float iks, float ika, float ishininess) :
      diffuseColor(idiffuseColor), 
      specColor(ispecColor),
      ambientColor(iambientColor),
      lightPos(ilightPos),
-     viewPos(iviewPos), kd(ikd), ks(iks), ka(ika), shininess(ishininess) 
+     viewPos(iviewPos), kd(ikd), ks(iks), ka(ika), shininess(ishininess)
   {}
 
   virtual bool scatter(const ray& r_in, const hit_record& hit, 
      glm::color& attenuation, ray& scattered) const override 
   {
      // todo
-     attenuation = glm::color(0);
-     return false;
+      using namespace glm;
+      vec3 unitn = normalize(hit.normal);
+      vec3 lightDir = normalize(lightPos - hit.p);
+
+      color ambience = ka * ambientColor;
+      color diffuse = kd * dot(lightDir, unitn) * diffuseColor;
+      vec3 r = 2 * dot(lightDir, unitn) * unitn - lightDir;
+      float v_dot_r = dot(normalize(viewPos), normalize(r));
+      color specular = ks * specColor * pow(v_dot_r, shininess);
+      color final = ambience + diffuse + specular;
+      attenuation = final;
+      return false; // single ray; no bounce
   }
 
 public:

@@ -37,7 +37,6 @@ color ray_color(const ray& r, const hittable_list& world, int depth)
       scattered = ray(rec.p, scatter_direction - rec.p);
       color recurseColor = ray_color(scattered, world, depth - 1);
       return 0.5f * recurseColor;
-      //return attenuation;
    }
    vec3 unit_direction = normalize(r.direction());
    auto t = 0.5f * (unit_direction.y + 1.0f);

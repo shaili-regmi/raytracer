@@ -1,9 +1,9 @@
 #ifndef TRIANGLE_H_
 #define TRIANGLE_H_
 
-
 #include "hittable.h"
 #include "AGLM.h"
+#include <math.h>
 
 class triangle : public hittable {
 public:
@@ -14,7 +14,31 @@ public:
    virtual bool hit(const ray& r, hit_record& rec) const override
    {
       // todo
-      return false;
+       float eps = 0.0001f;
+       glm::point3 e1 = b - a;
+       glm::point3 e2 = c - a;
+       glm::vec3 p = cross(r.direction(), e2);
+       float a1 = dot(e1, p);
+
+       if (fabs(a1) < eps) return false;
+       
+       float f = 1.0f / a1;
+       glm::vec3 s = r.origin() - a;
+       float u = f * (dot(s, p));
+       if (u < 0 || u > 1.0f) return false;
+
+       glm::vec3 q = cross(s, e1);
+       float v = f * (dot(r.direction(), q));
+       if (v < 0 || (u + v) > 1.0f) return false;
+
+       float t = f * (dot(e2, q));
+
+      // save relevant data in hit record
+      rec.t = t; // save the time when we hit the object
+      rec.p = r.at(t); // ray.origin + t * ray.direction
+      rec.mat_ptr = mat_ptr;
+
+      return true;
    }
 
 public:

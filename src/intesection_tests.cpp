@@ -36,6 +36,16 @@ void check(bool val, const std::string& message, const hit_record& hit, const ra
    assert(val);
 }
 
+void check_plane_or_triangle(bool val, const std::string& message, float hit_t, float t)
+{
+    if (!val)
+    {
+        cout << message << endl;
+        cout << hit_t << " != " << t << endl;
+    }
+    assert(val);
+}
+
 void test_sphere(const sphere& s, const ray& r, bool hits, const hit_record& desired) {
    hit_record hit;
    bool result = s.hit(r, hit);
@@ -49,9 +59,31 @@ void test_sphere(const sphere& s, const ray& r, bool hits, const hit_record& des
    }
 }
 
+void test_plane(const plane& p, const ray& r, bool hits, float t) {
+    hit_record hit;
+    bool result = p.hit(r, hit);
+
+    check_plane_or_triangle(result == hits, "error: ray should hit", hit.t, t);
+    if (hits) {
+        check_plane_or_triangle(equals(hit.t, t), "error: hit time incorrect", hit.t, t);
+    }
+}
+
+void test_triangle(const triangle& tri, const ray& r, bool hits, float t) {
+    hit_record hit;
+    bool result = tri.hit(r, hit);
+
+    check_plane_or_triangle(result == hits, "error: ray should hit", hit.t, t);
+    if (hits) {
+        check_plane_or_triangle(equals(hit.t, t), "error: hit time incorrect", hit.t, t);
+    }
+}
+
 int main(int argc, char** argv)
 {
+    
    shared_ptr<material> empty = 0; 
+ 
    hit_record none = hit_record{ point3(0), point3(0), -1.0f, false, empty};
 
    sphere s(point3(0), 2.0f, empty);
@@ -83,41 +115,60 @@ int main(int argc, char** argv)
    // TODO: Your tests here
 
    // Test plane:
+
    plane p(vec3(1, 1, 0), vec3(0, 0, 1), empty); // XY plane
-   hit_record rec = hit_record{ point3(0), point3(0), -1.0f, false, empty };
 
-   ray r = ray(point3(0, 0, 5), vec3(0, 0, -1)); // Ray outside primitive which hits the plane
-   bool hit = p.hit(r, rec);
-   cout << "Ray outside primitive which hits the plane? " << hit << endl;
+   test_plane(p,
+       ray(point3(0, 0, 5), vec3(0, 0, -1)), // Ray outside primitive which hits the plane
+       true, 5);
 
-   r = ray(point3(5, 9, 0), vec3(1, 0, -1)); // Ray inside primitive which hits the plane
-   hit = p.hit(r, rec);
-   cout << "Ray inside primitive which hits the plane? " << hit << endl;
+   test_plane(p,
+       ray(point3(5, 9, 0), vec3(1, 0, -1)), // Ray inside primitive which hits the plane
+       true, 0);
 
-   r = ray(point3(0, 0, 5), vec3(1, 1, 0)); // A ray parallel to XY plane
-   hit = p.hit(r, rec);
-   cout << "Ray parallel to XY plane does not hit? " << hit << endl;
+   test_plane(p,
+       ray(point3(0, 0, 5), vec3(1, 1, 0)), // A ray parallel to XY plane (does not hit)
+       false, NULL);
 
-   r = ray(point3(0, 0, 5), vec3(0, 0, 6)); // A ray outside, pointing away from the primitive (misses)
-   hit = p.hit(r, rec);
-   cout << "A ray outside, pointing away from the primitive (misses)? " << hit << endl;
+   test_plane(p,
+       ray(point3(0, 0, 5), vec3(0, 0, 6)), // A ray outside, pointing away from the primitive (misses)
+       false, NULL);
 
    plane p1(vec3(5, 4, -3), cross(vec3(5, 4, -3), vec3(3, 6, -5)), empty); // Random plane
 
-   r = ray(point3(0, 0, 5), vec3(1, 1, -1)); // Ray outside primitive which hits the plane
-   hit = p1.hit(r, rec);
-   cout << "Ray outside primitive which hits the plane? " << hit << endl;
+   test_plane(p1,
+       ray(point3(0, 0, 5), vec3(1, 1, -1)), // Ray outside primitive which hits the plane
+       true, 22.5f);
 
-   r = ray(point3(4, 5, -4), vec3(1, 1, 0)); // Ray inside primitive which hits the plane
-   hit = p1.hit(r, rec);
-   cout << "Ray inside primitive which hits the plane? " << hit << endl;
+   test_plane(p1,
+       ray(point3(4, 5, -4), vec3(1, 1, 0)), // Ray inside primitive which hits the plane
+       true, 0);
 
-   r = ray(point3(0, 0, 5), vec3(1, 1, 10)); // A ray outside, pointing towards the primitive that misses
-   hit = p1.hit(r, rec);
-   cout << "A ray outside, pointing towards the primitive that misses? " << hit << endl;
+   test_plane(p1,
+       ray(point3(0, 0, 5), vec3(1, 1, 10)), // A ray outside, pointing towards the primitive that misses
+       false, NULL);
 
-   r = ray(point3(0, 0, 5), vec3(-1, -1, 1)); // A ray outside, pointing away from the primitive (misses)
-   hit = p1.hit(r, rec);
-   cout << "A ray outside, pointing away from the primitive (misses)? " << hit << endl;
+   test_plane(p1,
+       ray(point3(0, 0, 5), vec3(-1, -1, 1)), // A ray outside, pointing away from the primitive (misses)
+       false, NULL);
+  
+   // Test Triangle:
 
+   triangle tri(point3(0, 0, 0), point3(5, 5, 1), point3(6, 2, 1), empty);
+  
+   test_triangle(tri,
+       ray(point3(1, 1, 5), vec3(0, 0, -6)), // Ray outside primitive which hits the triangle
+       true, 0.8f);
+
+   test_triangle(tri,
+       ray(point3(5, 5, 1), vec3(-1, -1, -1)), // Ray inside primitive which hits the triangle
+       true, 0);  
+
+   test_triangle(tri,
+       ray(point3(1, 1, 5), vec3(10, 10, -6)), // A ray outside, pointing towards the primitive that misses
+       false, NULL);
+
+   test_triangle(tri,
+       ray(point3(1, 1, 5), vec3(-10, -10, 6)), // A ray outside, pointing away from the primitive (misses)
+       false, NULL);
 }
