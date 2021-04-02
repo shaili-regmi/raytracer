@@ -38,6 +38,10 @@ public:
       rec.p = r.at(t); // ray.origin + t * ray.direction
       rec.mat_ptr = mat_ptr;
 
+      // save normal
+      glm::vec3 outward_normal = normalize(rec.p - a); // compute unit length normal
+      rec.set_face_normal(r, outward_normal);
+
       return true;
    }
 

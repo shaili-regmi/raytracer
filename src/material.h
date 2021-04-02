@@ -74,16 +74,27 @@ public:
   {
      // todo
       using namespace glm;
+      color final;
+      color ambience;
+      color diffuse;
+      color specular;
       vec3 unitn = normalize(hit.normal);
       vec3 lightDir = normalize(lightPos - hit.p);
-
-      color ambience = ka * ambientColor;
-      color diffuse = kd * dot(lightDir, unitn) * diffuseColor;
-      vec3 r = 2 * dot(lightDir, unitn) * unitn - lightDir;
-      float v_dot_r = dot(normalize(viewPos), normalize(r));
-      color specular = ks * specColor * pow(v_dot_r, shininess);
-      color final = ambience + diffuse + specular;
-      attenuation = final;
+      float l_dot_n = dot(lightDir, unitn);
+      
+      if (l_dot_n >= 0)
+      {
+          ambience = ka * ambientColor;
+          diffuse = kd * l_dot_n * diffuseColor;
+          vec3 r = 2 * l_dot_n * unitn - lightDir;
+          float v_dot_r = dot(normalize(viewPos), normalize(r));
+          if (v_dot_r >= 0)
+          {
+              specular = ks * specColor * pow(v_dot_r, shininess);
+              final = ambience + diffuse + specular;
+              attenuation = final;
+          }
+      }
       return false; // single ray; no bounce
   }
 

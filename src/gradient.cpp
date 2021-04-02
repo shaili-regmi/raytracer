@@ -44,5 +44,5 @@ void ray_trace(ppm_image& image)
 			image.set_vec3(i, j, c);
 		}
 	}
-	image.save("gradient.png");
+	image.save("../gradient.png");
 }

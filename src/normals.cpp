@@ -66,5 +66,5 @@ void ray_trace(ppm_image& image)
 			image.set_vec3(i, j, c);
 		}
 	}
-	image.save("normals.png");
+	image.save("../normals.png");
 }

@@ -62,6 +62,6 @@ void ray_trace(ppm_image& image)
 		}
 	}
 
-	image.save("silhouette.png");
+	image.save("../silhouette.png");
 }
 
