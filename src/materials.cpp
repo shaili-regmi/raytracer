@@ -15,7 +15,7 @@ using namespace glm;
 using namespace agl;
 using namespace std;
 
-/*
+
 color ray_color(const ray& r, const hittable_list& world, int depth)
 {
    hit_record rec;
@@ -107,8 +107,9 @@ void ray_trace(ppm_image& image)
 
    image.save("../materials.png");
    //image.save("../camera-changed-materials.png");
-}*/
-
+}
+/*
+// Tests and unique image
 color ray_color(const ray& r, const hittable_list& world, int depth)
 {
     hit_record rec;
@@ -128,9 +129,18 @@ color ray_color(const ray& r, const hittable_list& world, int depth)
         }
         return attenuation;
     }
+    
     vec3 unit_direction = normalize(r.direction());
     auto t = 0.5f * (unit_direction.y + 1.0f);
     return (1.0f - t) * color(1, 1, 1) + t * color(0.5f, 0.7f, 1.0f);
+
+    /* 
+    // Changing background (gradient in z-direction)
+    vec3 unit_direction = normalize(r.direction());
+    auto t = 0.5f * (unit_direction.z + 1.0f);
+    return (1.0f - t) * color(1, 1, 1) + t * color(0.5f, 1.0f, 0.4f);
+    */
+/*
 }
 
 color normalize_color(const color& c, int samples_per_pixel)
@@ -163,7 +173,7 @@ void ray_trace(ppm_image& image)
     float viewport_height = 2.0f;
     float focal_length = 4.0;
     //camera cam(point3(3, 0, 0), point3(-3, 0, 0), vec3(0, 1, 0), 50, aspect); // Changing the camera position using look at and up vectors
-    camera cam(camera_pos, viewport_height, aspect, focal_length);
+    //camera cam(camera_pos, viewport_height, aspect, focal_length);
 
     // World
     shared_ptr<material> gray = make_shared<lambertian>(color(0.5f));
@@ -171,15 +181,38 @@ void ray_trace(ppm_image& image)
     shared_ptr<material> metalRed = make_shared<metal>(color(1, 0, 0), 0.3f);
     shared_ptr<material> glass = make_shared<dielectric>(1.5f);
     shared_ptr<material> phongDefault = make_shared<phong>(camera_pos);
+    shared_ptr<material> base = make_shared<lambertian>(color(0.6f, 0.1f, 0.2f));
 
     hittable_list world;
-    //world.add(make_shared<triangle>(point3(-2.25, 0, -1), point3(2.25, 0, 1), point3(4, 0, 5), phongDefault));
-    world.add(make_shared<triangle>(point3(-2.25, 0, -1), point3(2.25, 0, 1), point3(4, 0, 5), matteGreen));
-    //world.add(make_shared<sphere>(point3(-0.75, 0, -1), 0.5f, glass));
-    //world.add(make_shared<sphere>(point3(2.25, 0, -1), 0.5f, metalRed));
-    //world.add(make_shared<sphere>(point3(0.75, 0, -1), 0.5f, matteGreen));
-    //world.add(make_shared<sphere>(point3(0, -100.5, -1), 100, gray));
-
+    //world.add(make_shared<triangle>(point3(-2.25, 0, -1), point3(-0.75, -0.5, -1), point3(2.25, 1, -1), matteGreen)); //saved as triangle
+    //camera cam(point3(1, 0, 1), point3(-1, 0, -1), vec3(0, 1, 0), 100, aspect);
+    //world.add(make_shared<plane>(vec3(1, 1, 0), vec3(0, 0, 1), gray)); //saved as plane
+ 
+    /*
+    // Unique image 1 - Helical spheres from 2 viewpoints
+    //camera cam(camera_pos, viewport_height, aspect, focal_length);
+    camera cam(point3(3, 2, 0), point3(-3, -2, 0), vec3(0, 0, 1), 100, aspect);
+    world.add(make_shared<sphere>(point3(0,0,0), 0.1f, metalRed));
+    for (int i = -10; i <= 10; i += 1)
+    {
+        //world.add(make_shared<sphere>(point3(cos(i), sin(i), i), 0.25f, phongDefault));
+        world.add(make_shared<sphere>(point3(2*cos(i), 2*sin(i), 0.5*i), 0.5f, phongDefault));
+    }
+    */
+/*
+    // Unique Image 2 - Platonic solid with triangles on a plane base
+    camera cam(point3(1, 1, 0), point3(-1, -1, 0), vec3(0, 0, 1), 75, aspect);
+   
+    world.add(make_shared<plane>(vec3(-5, -5, -5), vec3(0.75, 0.5, -5), base)); //plane used as base for platonic solid
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(-0.5, -0.5, 0.5), point3(-0.5, 0.5, -0.5), matteGreen));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(-0.5, -0.5, 0.5), point3(0.5, -0.5, -0.5), metalRed));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(0.5, -0.5, -0.5), point3(0.5, 0.5, -0.5), matteGreen));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(0.5, 0.5, -0.5), point3(-0.5, 0.5, -0.5), metalRed));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(-0.5, -0.5, -0.5), point3(-0.5, 0.5, 0.5), matteGreen));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(-0.5, -0.5, -0.5), point3(0.5, -0.5, 0.5), metalRed));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(0.5, -0.5, 0.5), point3(0.5, 0.5, 0.5), matteGreen));
+    world.add(make_shared<triangle>(point3(0, 0, 0), point3(0.5, 0.5, 0.5), point3(-0.5, 0.5, 0.5), metalRed));
+    
     // Ray trace
     for (int j = 0; j < height; j++)
     {
@@ -199,5 +232,6 @@ void ray_trace(ppm_image& image)
         }
     }
 
-    image.save("../triangle.png");
+    image.save("../unique-image2.png");
 }
+*/

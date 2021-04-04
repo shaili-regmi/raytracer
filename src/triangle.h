@@ -39,7 +39,7 @@ public:
       rec.mat_ptr = mat_ptr;
 
       // save normal
-      glm::vec3 outward_normal = normalize(rec.p - a); // compute unit length normal
+      glm::vec3 outward_normal = normalize(cross(e1, e2)); // compute unit length normal
       rec.set_face_normal(r, outward_normal);
 
       return true;
